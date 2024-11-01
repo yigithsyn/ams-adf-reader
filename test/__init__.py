@@ -1,9 +1,27 @@
-import sys
-from matplotlib import pyplot
+import sys, pathlib
 
 # setting path
 sys.path.append('./src/')
-from pyanten import Array
+import adf
+
+# print(pathlib.Path.joinpath(pathlib.Path(__file__).parent.resolve(), "NFScan.adf"))
+print("")
+
+measurementFile = pathlib.Path.joinpath(pathlib.Path(__file__).parent.resolve(), "NFScan.adf")
+
+measurement = adf.Measurement(measurementFile)
+
+assert(print(measurement.start()))    == None
+assert(print(measurement.finish()))   == None
+assert(print(measurement.duration())) == None
+
+# assert(print(adf.measurementStart(measurementFile)))    == None
+# assert(print(adf.measurementFinish(measurementFile)))   == None
+# assert(print(adf.measurementDuration(measurementFile))) == None
+
+# assert(print(adf.measurementAxes(measurementFile))) == None
+
+
 
 # print(Array.amplitudeTaper(31, 30, "taylor"))
 # print(Array.amplitudeTaper(31, 30, "taylor", taylor_nbar = 5))

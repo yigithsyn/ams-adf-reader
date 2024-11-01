@@ -16,7 +16,7 @@ VERSION = (HERE / "VERSION").read_text().strip()
 LICENSE = 'The Unlicense'
 
 # Required Python version
-PYTHON_VERSION = '>= 3'
+PYTHON_VERSION = '>= 3.4'
 
 
 setup \
@@ -29,7 +29,7 @@ setup \
     , author           = "Hüseyin YİĞİT"
     , author_email     = "yigit.hsyn@gmail.com"
     , install_requires = \
-        [ 'h5py>=3.11.0' ]
+        [ 'h5py' ]
     , packages         = find_namespace_packages(where='src'),
       package_dir      = {"": "src"}
     , platforms        = 'Any'
