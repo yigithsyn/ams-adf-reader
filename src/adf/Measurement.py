@@ -116,8 +116,8 @@ class Measurement:
         file.write("# pol\t\tstep\t\tscan\t\treal\t\timag\n"%(self.axesValues[3][i]/1E3))
         for k in range(len(self.axesValues[0])):
           if self.type == MeasurementType.PLANAR_XSCAN:
-            for l in range(len(self.axesValues[1])):
-              for m in range(len(self.axesValues[2])):
+            for m in range(len(self.axesValues[2])):
+              for l in range(len(self.axesValues[1])):
                 file.write("%.3f\t\t%+.3f\t\t%+.3f\t\t%+.16f\t\t%+.16f\n"%(self.axesValues[0][k], self.axesValues[2][m], self.axesValues[1][l], self.data[k][l][m][i][0], self.data[k][l][m][i][1]))
           else: # default MeasurementType.PLANAR_YSCAN
             for l in range(len(self.axesValues[1])):
