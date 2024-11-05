@@ -11,9 +11,24 @@ measurementFile = pathlib.Path.joinpath(pathlib.Path(__file__).parent.resolve(),
 
 measurement = adf.Measurement(measurementFile)
 
-assert(print(measurement.start()))    == None
-assert(print(measurement.finish()))   == None
-assert(print(measurement.duration())) == None
+assert(print("Measurement start    :", measurement.start))    == None
+assert(print("Measurement finish   :", measurement.finish))   == None
+assert(print("Measurement duration :", measurement.duration())) == None
+
+print("")
+
+assert(print("Measurement axes :", ', '.join(measurement.axes))) == None
+assert(print("Measurement type :", measurement.type())) == None
+
+for i in range(len(measurement.axes)):
+  assert(print(measurement.axes[i], ":"))  == None
+  assert(print(measurement.axesValues[i])) == None
+
+# assert(print(measurement.data)) == None
+
+assert(print(measurement.axesPositionsInitial)) == None
+assert(print(measurement.axesPositionsEnd))     == None
+
 
 # assert(print(adf.measurementStart(measurementFile)))    == None
 # assert(print(adf.measurementFinish(measurementFile)))   == None
