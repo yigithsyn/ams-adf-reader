@@ -13,12 +13,12 @@ measurement = adf.Measurement(measurementFile)
 
 assert(print("Measurement start    :", measurement.start))    == None
 assert(print("Measurement finish   :", measurement.finish))   == None
-assert(print("Measurement duration :", measurement.duration())) == None
+assert(print("Measurement duration :", measurement.duration)) == None
 
 print("")
 assert(print("Measurement axes :", ', '.join(measurement.axes))) == None
-assert(print("Measurement type :", measurement.type()))          == None
-assert(print(measurement.type() in MeasurementType.PLANAR))      == None
+assert(print("Measurement type :", measurement.type))          == None
+assert(print(measurement.type in MeasurementType.PLANAR))      == None
 
 for i in range(len(measurement.axes)):
   assert(print(measurement.axes[i], ":"))  == None
