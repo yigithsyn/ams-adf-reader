@@ -33,7 +33,7 @@ setup \
     , packages         = find_namespace_packages(where='src'),
       package_dir      = {"": "src"}
     , platforms        = 'Any'
-    , url              = "https://github.com/atamlab/adf"
+    , url              = "https://github.com/yigithsyn/ams-adf-reader"
     , python_requires  = PYTHON_VERSION
     , classifiers      = \
         [ 'Development Status :: 2 - Pre-Alpha'
