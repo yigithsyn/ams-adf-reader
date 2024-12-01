@@ -20,7 +20,7 @@ PYTHON_VERSION = '>= 3.4'
 
 
 setup \
-    ( name             = "adf"
+    ( name             = "ams-adf-reader"
     , version          = VERSION
     , description      = "Antenna Measurement Software (AMS) File Format (ADF) Reader "
     , long_description = README
