@@ -13,7 +13,7 @@ README = (HERE / "README.md").read_text()
 VERSION = (HERE / "VERSION").read_text().strip()
 
 # License
-LICENSE = 'The Unlicense'
+LICENSE = 'MIT License'
 
 # Required Python version
 PYTHON_VERSION = '>= 3.4'

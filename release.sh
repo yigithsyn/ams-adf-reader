@@ -1,1 +1,2 @@
-git tag v0.1.2 && git push origin v0.1.2
+read -r ver < VERSION 
+git tag v$ver && git push origin v$ver
