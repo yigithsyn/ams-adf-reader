@@ -29,7 +29,7 @@ setup \
     , author           = "Hüseyin YİĞİT"
     , author_email     = "yigit.hsyn@gmail.com"
     , install_requires = \
-        [ 'h5py' ]
+        [ 'h5py', 'pynsi>=0.4.3' ]
     , packages         = find_namespace_packages(where='src'),
       package_dir      = {"": "src"}
     , platforms        = 'Any'

@@ -6,7 +6,6 @@ amsadfreader    = __import__("ams-adf-reader")
 Measurement     = amsadfreader.Measurement
 MeasurementType = amsadfreader.MeasurementType
 
-pathlib.Path(pathlib.Path.joinpath(pathlib.Path(__file__).parent.resolve(), "data")).mkdir(parents=True, exist_ok=True)
 print("")
 measurementFile = pathlib.Path.joinpath(pathlib.Path(__file__).parent.resolve(), "NFScan.adf")
 
@@ -32,7 +31,8 @@ assert(print("Measurement frequency size :", measurement.freqSize))        == No
 # assert(print(measurement.axesPositionsInitial)) == None
 # assert(print(measurement.axesPositionsEnd))     == None
 
-assert(measurement.exportForNSI(pathlib.Path.joinpath(pathlib.Path(__file__).parent.resolve(), "data"))) == None
+# assert(measurement.exportForNSI(pathlib.Path.joinpath(pathlib.Path(__file__).parent.resolve(), "data"))) == None
+assert(measurement.importToNSI()) == None
 
 
 

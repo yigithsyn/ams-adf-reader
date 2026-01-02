@@ -1,6 +1,7 @@
-import os, pathlib, datetime
+import os, pathlib, datetime, shutil
 from enum import Flag, auto
 import h5py
+import pynsi
 
 class MeasurementType(Flag):
   PLANAR_XSCAN             = auto()
@@ -24,7 +25,9 @@ class Measurement:
   def __init__(self, filename: str):
     if os.path.exists(filename):
       if pathlib.Path(filename).suffix == ".adf":
-        self.hdf = h5py.File(filename, 'r')
+        self.filename = filename
+        self.folder   = pathlib.Path(filename).parent.resolve()
+        self.hdf      = h5py.File(filename, 'r')
 
         datetimestr = self.hdf['Radiation Pattern']['ATTRIBUTES']['History'].attrs['Measurement Start'].strip()
         self.start  = datetime.datetime.strptime(datetimestr, "%a %b %d %H:%M:%S %Y")
@@ -71,7 +74,7 @@ class Measurement:
     else:
       raise FileNotFoundError
 
-  def exportForNSI(self, path, **kwargs):
+  def _exportForNSI(self, **kwargs):
     r""" Exports measurement data for NSI2000 import
 
       Parameters
@@ -93,8 +96,8 @@ class Measurement:
       SNF: spherical nearfield
       AUT: antenna under test
     """
-    if not os.path.exists(path):
-      raise FileNotFoundError("Output folder does not exists.")
+    expoPath = "%s"%(pathlib.Path.joinpath(pathlib.Path(self.filename).parent.resolve(), "NFScan"))
+    pathlib.Path(expoPath).mkdir(parents=True, exist_ok=True)
     
     if self.type in MeasurementType.PLANAR:    
       probeDist = 1.0 if "probeDist" not in kwargs.keys() else kwargs["probeDist"]
@@ -111,15 +114,15 @@ class Measurement:
       if type(autHeight) != float:
         raise TypeError("%s must be float"%autHeight)
       
-      with open(os.path.join(path, "NFScan.prm"), '+w', encoding='utf-8') as file:
+      with open(os.path.join(self.folder, "NFScan.prm"), '+w', encoding='utf-8') as file:
         file.write("PNF\n")
         file.write("%.3f, %.3f, %.3f, %.3f\n"%(probeDist, mre, autWidth, autHeight))
         if self.type == MeasurementType.PLANAR_XSCAN:
-          file.write("%+.3f, %+.3f, %.3f\n"%(self.axesValues[2][0], self.axesValues[2][-1], (self.axesValues[2][1]-self.axesValues[2][0])))
-          file.write("%+.3f, %+.3f, %.3f\n"%(self.axesValues[1][0], self.axesValues[1][-1], (self.axesValues[1][1]-self.axesValues[1][0])))
+          file.write("%+.3f, %+.3f, %.3f, %d\n"%(self.axesValues[2][0], self.axesValues[2][-1], (self.axesValues[2][1]-self.axesValues[2][0]), self.scanSize))
+          file.write("%+.3f, %+.3f, %.3f, %d\n"%(self.axesValues[1][0], self.axesValues[1][-1], (self.axesValues[1][1]-self.axesValues[1][0]), self.stepSize))
         else: # default MeasurementType.PLANAR_YSCAN
-          file.write("%+.3f, %+.3f, %.3f\n"%(self.axesValues[1][0], self.axesValues[1][-1], (self.axesValues[1][1]-self.axesValues[1][0])))
-          file.write("%+.3f, %+.3f, %.3f\n"%(self.axesValues[2][0], self.axesValues[2][-1], (self.axesValues[2][1]-self.axesValues[2][0])))
+          file.write("%+.3f, %+.3f, %.3f, %d\n"%(self.axesValues[1][0], self.axesValues[1][-1], (self.axesValues[1][1]-self.axesValues[1][0]), self.stepSize))
+          file.write("%+.3f, %+.3f, %.3f, %d\n"%(self.axesValues[2][0], self.axesValues[2][-1], (self.axesValues[2][1]-self.axesValues[2][0]), self.scanSize))
         for i in range(len(self.axesValues[3])-1):
           file.write("%.6f, "%(self.axesValues[3][i]/1E9))
         file.write("%.6f\n"%(self.axesValues[3][-1]/1E9))
@@ -128,7 +131,7 @@ class Measurement:
         file.write("NF_%.0f.txt"%(self.axesValues[3][-1]/1E3))
         
       for i in range(len(self.axesValues[3])):
-        with open(os.path.join(path, "NF_%.0f.txt"%(self.axesValues[3][i]/1E3)), '+w', encoding='utf-8') as file:
+        with open(os.path.join(expoPath, "NF_%.0f.txt"%(self.axesValues[3][i]/1E3)), '+w', encoding='utf-8') as file:
           file.write("# pol\t\tstep\t\tscan\t\treal\t\timag\n"%(self.axesValues[3][i]/1E3))
           for k in range(len(self.axesValues[0])):
             if self.type == MeasurementType.PLANAR_XSCAN:
@@ -155,15 +158,15 @@ class Measurement:
       if type(autHeight) != float:
         raise TypeError("%s must be float"%autHeight)
       
-      with open(os.path.join(path, "NFScan.prm"), '+w', encoding='utf-8') as file:
+      with open(os.path.join(self.folder, "NFScan.prm"), '+w', encoding='utf-8') as file:
         file.write("CNF\n")
         file.write("%.3f, %.3f, %.3f, %.3f\n"%(probeDist, mre, autWidth, autHeight))
         if self.type == MeasurementType.CYLINDIRICAL_AZIMUTHSCAN:
-          file.write("%+.3f, %+.3f, %.3f\n"%(self.axesValues[2][0], self.axesValues[2][-1], (self.axesValues[2][1]-self.axesValues[2][0])))
-          file.write("%+.3f, %+.3f, %.3f\n"%(self.axesValues[1][0], self.axesValues[1][-1], (self.axesValues[1][1]-self.axesValues[1][0])))
+          file.write("%+.3f, %+.3f, %.3f, %d\n"%(self.axesValues[2][0], self.axesValues[2][-1], (self.axesValues[2][1]-self.axesValues[2][0]), self.scanSize))
+          file.write("%+.3f, %+.3f, %.3f, %d\n"%(self.axesValues[1][0], self.axesValues[1][-1], (self.axesValues[1][1]-self.axesValues[1][0]), self.stepSize))
         else: # default MeasurementType.CYLINDIRICAL_YSCAN
-          file.write("%+.3f, %+.3f, %.3f\n"%(self.axesValues[1][0], self.axesValues[1][-1], (self.axesValues[1][1]-self.axesValues[1][0])))
-          file.write("%+.3f, %+.3f, %.3f\n"%(self.axesValues[2][0], self.axesValues[2][-1], (self.axesValues[2][1]-self.axesValues[2][0])))
+          file.write("%+.3f, %+.3f, %.3f, %d\n"%(self.axesValues[1][0], self.axesValues[1][-1], (self.axesValues[1][1]-self.axesValues[1][0]), self.stepSize))
+          file.write("%+.3f, %+.3f, %.3f, %d\n"%(self.axesValues[2][0], self.axesValues[2][-1], (self.axesValues[2][1]-self.axesValues[2][0]), self.scanSize))
         for i in range(len(self.axesValues[3])-1):
           file.write("%.6f, "%(self.axesValues[3][i]/1E9))
         file.write("%.6f\n"%(self.axesValues[3][-1]/1E9))
@@ -172,7 +175,7 @@ class Measurement:
         file.write("NF_%.0f.txt"%(self.axesValues[3][-1]/1E3))
         
       for i in range(len(self.axesValues[3])):
-        with open(os.path.join(path, "NF_%.0f.txt"%(self.axesValues[3][i]/1E3)), '+w', encoding='utf-8') as file:
+        with open(os.path.join(expoPath, "NF_%.0f.txt"%(self.axesValues[3][i]/1E3)), '+w', encoding='utf-8') as file:
           file.write("# pol\t\tstep\t\tscan\t\treal\t\timag\n"%(self.axesValues[3][i]/1E3))
           for k in range(len(self.axesValues[0])):
             if self.type == MeasurementType.CYLINDIRICAL_AZIMUTHSCAN:
@@ -186,5 +189,23 @@ class Measurement:
 
     else:
       raise ValueError('Export to NSI for this type of measurement is nor supported.')
+
+  def importToNSI(self):
+    r""" Import measurement to NSI2000
+    """
+    self._exportForNSI()
+    with open("C:\\NSI2000\\Script\\ImportNFDataTemplateV2.bas", 'r') as file:
+      fileText = file.read()
+      fileText = fileText.replace("<sParamFileName>", str(os.path.join(self.folder, "NFScan.prm")))
+
+    scriptFile = os.path.join(self.folder, str(os.path.join(self.folder, "NFScan.bas")))
+    with open(scriptFile, 'w') as file:
+      file.write(fileText)
+    shutil.copy(scriptFile, "C:\\NSI2000\\Script\\ImportNFDataCurrent.bas",)
+
+
+    measurement = pynsi.Measurement(r'C:\NSI2000\Data\pla11.nsi')
+    script      = pynsi.Script(measurement)
+    script.RunScriptFile("C:\\NSI2000\\Script\\ImportNFDataCurrent.bas")
 
 
