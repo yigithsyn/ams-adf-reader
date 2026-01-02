@@ -41,12 +41,23 @@ class Measurement:
         
         if self.axes[0] == "Pol" and self.axes[1] == "x" and self.axes[2] == "y" and self.axes[3] == "Frequency":
           self.type = MeasurementType.PLANAR_YSCAN
+          self.stepSize = self.hdf['Radiation Pattern']['x'].attrs["Size"]
+          self.scanSize = self.hdf['Radiation Pattern']['y'].attrs["Size"]
+          self.freqSize = self.hdf['Radiation Pattern']['Frequency'].attrs["Size"]
         elif self.axes[0] == "Pol" and self.axes[1] == "y" and self.axes[2] == "x" and self.axes[3] == "Frequency":
           self.type = MeasurementType.PLANAR_XSCAN
+          self.stepSize = self.hdf['Radiation Pattern']['y'].attrs["Size"]
+          self.scanSize = self.hdf['Radiation Pattern']['x'].attrs["Size"]
         elif self.axes[0] == "Pol" and self.axes[1] == "Azimuth" and self.axes[2] == "y" and self.axes[3] == "Frequency":
           self.type = MeasurementType.CYLINDIRICAL_YSCAN
+          self.stepSize = self.hdf['Radiation Pattern']['Azimuth'].attrs["Size"]
+          self.scanSize = self.hdf['Radiation Pattern']['y'].attrs["Size"]
+          self.freqSize = self.hdf['Radiation Pattern']['Frequency'].attrs["Size"]
         elif self.axes[0] == "Pol" and self.axes[1] == "y" and self.axes[2] == "Azimuth" and self.axes[3] == "Frequency":
           self.type = MeasurementType.CYLINDIRICAL_AZIMUTHSCAN
+          self.stepSize = self.hdf['Radiation Pattern']['y'].attrs["Size"]
+          self.scanSize = self.hdf['Radiation Pattern']['Azimuth'].attrs["Size"]
+          self.freqSize = self.hdf['Radiation Pattern']['Frequency'].attrs["Size"]
         else:
           self.type = MeasurementType.CUSTOM
         
